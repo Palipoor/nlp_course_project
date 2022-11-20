@@ -34,7 +34,7 @@ def main():
     train_file = os.path.join(data_dir, 'train.json')
     val_file = os.path.join(data_dir, 'val.json')
     test_file = os.path.join(data_dir, 'test.json')
-    output_dir = os.path.join(args.expt_dir, args.expt_name)
+    output_dir = args.expt_dir
     if args.mode == 'train':
         with open(train_file, 'r') as f:
             train_data = json.loads(f.read())
@@ -73,7 +73,8 @@ def main():
             per_device_train_batch_size=batch_size,
             learning_rate=lr,
             num_train_epochs=n_epochs,
-            load_best_model_at_end=True
+            load_best_model_at_end=True,
+            save_total_limit = 2,
         )
 
         trainer = Trainer(
@@ -91,11 +92,11 @@ def main():
             input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
             attn_mask = torch.Tensor(d['attention_mask']).to(torch.int).reshape(1, -1).to('cuda')
             result = model(input_ids=input_ids, attention_mask=attn_mask)
-            preds.append((d['meta'], torch.argmax(result.logits)))
+            preds.append((d['meta'], torch.argmax(result.logits).item()))
 
         with open(results_dir, 'w') as out:
             for p in preds:
-                out.write(p[0] + ',' + p[1] + '\n')
+                out.write(p[0] + ',' + str(p[1]) + '\n')
 
 
 if __name__ == '__main__':
