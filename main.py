@@ -61,20 +61,20 @@ def main():
                 'valid': Dataset.from_list(val_data_points),
                 'test': Dataset.from_list(test_data_points),
             })
-
+        run_name = os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}")
         train_args = TrainingArguments(
-            output_dir=os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}"),
+            output_dir=run_name,
             do_train=True,
             do_eval=True,
             do_predict=True,
             evaluation_strategy="epoch",
-            save_strategy = "epoch",
+            save_strategy="epoch",
             logging_strategy="epoch",
             per_device_train_batch_size=batch_size,
             learning_rate=lr,
             num_train_epochs=n_epochs,
             load_best_model_at_end=True,
-            save_total_limit = 2,
+            save_total_limit=2,
         )
 
         trainer = Trainer(
@@ -86,7 +86,7 @@ def main():
         )
 
         trainer.train()
-        results_dir = os.path.join(output_dir, 'predictions.csv')
+        results_dir = os.path.join(run_name, 'predictions.csv')
         preds = []
         for d in dataset['test']:
             input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
