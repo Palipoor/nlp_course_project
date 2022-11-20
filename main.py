@@ -62,13 +62,12 @@ def main():
             })
 
         train_args = TrainingArguments(
-            f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}",
+            output_dir=os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}"),
             do_train=True,
             do_eval=True,
             do_predict=True,
             evaluation_strategy="epoch",
             logging_strategy="epoch",
-            output_dir=output_dir,
             per_device_train_batch_size=batch_size,
             learning_rate=lr,
             num_train_epochs=n_epochs,
@@ -83,7 +82,7 @@ def main():
         )
 
         trainer.train()
-        trainer.predict(test_dataset=dataset['test'])
+        print(trainer.predict(test_dataset=dataset['test']))
 
 
 if __name__ == '__main__':
