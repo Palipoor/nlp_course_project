@@ -68,6 +68,7 @@ def main():
             do_eval=True,
             do_predict=True,
             evaluation_strategy="epoch",
+            save_strategy = "epoch",
             logging_strategy="epoch",
             per_device_train_batch_size=batch_size,
             learning_rate=lr,
