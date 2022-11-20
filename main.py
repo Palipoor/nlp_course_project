@@ -2,6 +2,7 @@ import argparse
 import os
 import json
 
+import torch
 from datasets import Dataset, DatasetDict
 from transformers import AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, AutoTokenizer, TrainingArguments, \
     Trainer
@@ -18,7 +19,7 @@ def main():
     parser.add_argument('--expt_name', type=str, help='expt_dir/expt_name: organize experiments')
     parser.add_argument('--data_dir', type=str, help='directory containing train, eval, test files')
     parser.add_argument('--model', type=str, help='transformer model (e.g. roberta-base)', required=True)
-    parser.add_argument('--lr', type=float, help='learning rate', default=1e-5)
+    parser.add_argument('--lr', type=float, help='learning rate', default=2e-5)
     parser.add_argument('--epochs', type=int, help='number of epochs', default=10)
     parser.add_argument('--batch_size', type=int, help='batch size', default=8)
     parser.add_argument('--acc_step', type=int, help='gradient accumulation steps', default=1)
@@ -71,6 +72,7 @@ def main():
             per_device_train_batch_size=batch_size,
             learning_rate=lr,
             num_train_epochs=n_epochs,
+            load_best_model_at_end=True
         )
 
         trainer = Trainer(
@@ -82,7 +84,17 @@ def main():
         )
 
         trainer.train()
-        print(trainer.predict(test_dataset=dataset['test']))
+        results_dir = os.path.join(output_dir, 'predictions.csv')
+        preds = []
+        for d in dataset['test']:
+            input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
+            attn_mask = torch.Tensor(d['attention_mask']).to(torch.int).reshape(1, -1).to('cuda')
+            result = model(input_ids=input_ids, attention_mask=attn_mask)
+            preds.append((d['meta'], torch.argmax(result.logits)))
+
+        with open(results_dir, 'w') as out:
+            for p in preds:
+                out.write(p[0] + ',' + p[1] + '\n')
 
 
 if __name__ == '__main__':
