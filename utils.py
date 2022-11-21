@@ -24,6 +24,24 @@ def preprocess_label(instance):
     return 1
 
 
+def t2t_preprocess_label(instance):
+    scores = instance['meta']['val_ann']
+    if sum(scores) >= 5:
+        return 'entailment'
+    if sum(scores) <= 2:
+        return 'not_entailment'
+    return 'contradiction'
+
+def t2t_preprocess_data(instance, tokenizer):
+    input_text = 'hypothesis: ' + instance['hypothesis'] + ' premise: ' + instance['premise']
+    encoded = tokenizer(input_text, padding='max_length', max_length=256)
+    tokenized_input = {'input_ids': encoded.input_ids}
+    label = t2t_preprocess_label(instance)
+    output = tokenizer(label, padding='max_length', max_length=10).input_ids
+    tokenized_input.update({'labels': output})
+    return tokenized_input
+
+
 def preprocess_data(instance, tokenizer):
     tokenized_input = tokenizer(instance['premise'], instance['hypothesis'], add_special_tokens=True, padding=True)
     label = preprocess_label(instance)

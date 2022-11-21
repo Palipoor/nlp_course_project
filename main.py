@@ -5,7 +5,7 @@ import json
 import torch
 from datasets import Dataset, DatasetDict
 from transformers import AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, AutoTokenizer, TrainingArguments, \
-    Trainer
+    Trainer, Seq2SeqTrainingArguments
 
 from utils import *
 
@@ -51,6 +51,7 @@ def main():
         else:
             model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
         tokenizer = AutoTokenizer.from_pretrained(args.model)
+        run_name = os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}")
 
         if not args.t2t:
             train_data_points = [preprocess_data(x, tokenizer) for x in train_instances]
@@ -61,22 +62,43 @@ def main():
                 'valid': Dataset.from_list(val_data_points),
                 'test': Dataset.from_list(test_data_points),
             })
-        run_name = os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}")
-        train_args = TrainingArguments(
-            output_dir=run_name,
-            do_train=True,
-            do_eval=True,
-            do_predict=True,
-            evaluation_strategy="epoch",
-            save_strategy="epoch",
-            logging_strategy="epoch",
-            per_device_train_batch_size=batch_size,
-            learning_rate=lr,
-            num_train_epochs=n_epochs,
-            load_best_model_at_end=True,
-            save_total_limit=2,
-        )
-
+            train_args = TrainingArguments(
+                output_dir=run_name,
+                do_train=True,
+                do_eval=True,
+                do_predict=True,
+                evaluation_strategy="epoch",
+                save_strategy="epoch",
+                logging_strategy="epoch",
+                per_device_train_batch_size=batch_size,
+                learning_rate=lr,
+                num_train_epochs=n_epochs,
+                load_best_model_at_end=True,
+                save_total_limit=2,
+            )
+        else:
+            train_data_points = [t2t_preprocess_data(x, tokenizer) for x in train_instances]
+            val_data_points = [t2t_preprocess_data(x, tokenizer) for x in val_instances]
+            test_data_points = [t2t_preprocess_data(x, tokenizer) for x in test_instances]
+            dataset = DatasetDict({
+                'train': Dataset.from_list(train_data_points),
+                'valid': Dataset.from_list(val_data_points),
+                'test': Dataset.from_list(test_data_points),
+            })
+            train_args = Seq2SeqTrainingArguments(
+                output_dir=run_name,
+                do_train=True,
+                do_eval=True,
+                do_predict=True,
+                evaluation_strategy="epoch",
+                save_strategy="epoch",
+                logging_strategy="epoch",
+                per_device_train_batch_size=batch_size,
+                learning_rate=lr,
+                num_train_epochs=n_epochs,
+                load_best_model_at_end=True,
+                save_total_limit=2,
+            )
         trainer = Trainer(
             model,
             train_args,
@@ -88,16 +110,24 @@ def main():
         trainer.train()
         results_dir = os.path.join(run_name, 'predictions.csv')
         preds = []
-        for d in dataset['test']:
-            input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
-            attn_mask = torch.Tensor(d['attention_mask']).to(torch.int).reshape(1, -1).to('cuda')
-            result = model(input_ids=input_ids, attention_mask=attn_mask)
-            preds.append((d['meta'], torch.argmax(result.logits).item()))
+        if not args.t2t:
+            for d in dataset['test']:
+                input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
+                attn_mask = torch.Tensor(d['attention_mask']).to(torch.int).reshape(1, -1).to('cuda')
+                result = model(input_ids=input_ids, attention_mask=attn_mask)
+                preds.append((d['meta'], torch.argmax(result.logits).item()))
 
-        with open(results_dir, 'w') as out:
-            for p in preds:
-                out.write(p[0] + ',' + str(p[1]) + '\n')
-
+            with open(results_dir, 'w') as out:
+                for p in preds:
+                    out.write(p[0] + ',' + str(p[1]) + '\n')
+        else:
+            for d in dataset['test']:
+                input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
+                result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
+                preds.append((d['meta'], torch.argmax(result.logits).item()))
+            with open(results_dir, 'w') as out:
+                for p in preds:
+                    out.write(p[0] + ',' + p[1] + '\n')
 
 if __name__ == '__main__':
     main()
