@@ -51,7 +51,8 @@ def main():
         else:
             model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
         tokenizer = AutoTokenizer.from_pretrained(args.model)
-        run_name = os.path.join(output_dir, f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}")
+        name = f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}"
+        run_name = os.path.join(output_dir, name)
 
         if not args.t2t:
             train_data_points = [preprocess_data(x, tokenizer) for x in train_instances]
@@ -70,7 +71,7 @@ def main():
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="epoch",
-                gradient_accumulation_steps = args.acc_step,
+                gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
                 learning_rate=lr,
                 num_train_epochs=n_epochs,
@@ -110,7 +111,7 @@ def main():
         )
 
         trainer.train()
-        results_dir = os.path.join(run_name, 'predictions.csv')
+        results_dir = os.path.join(run_name, f'{name}_predictions.csv')
         preds = []
         if not args.t2t:
             for d in dataset['test']:
