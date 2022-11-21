@@ -47,7 +47,7 @@ def main():
             test_instances = [create_nli_instance(x) for x in test_data]
 
         if not args.t2t:
-            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=3)
+            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=2)
         else:
             model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
         tokenizer = AutoTokenizer.from_pretrained(args.model)
