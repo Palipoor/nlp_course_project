@@ -124,10 +124,11 @@ def main():
             for d in dataset['test']:
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
-                preds.append((d['meta'], torch.argmax(result.logits).item()))
+                preds.append((d['meta'], result))
             with open(results_dir, 'w') as out:
                 for p in preds:
                     out.write(p[0] + ',' + p[1] + '\n')
+
 
 if __name__ == '__main__':
     main()
