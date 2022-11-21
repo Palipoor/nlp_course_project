@@ -38,7 +38,7 @@ def t2t_preprocess_data(instance, tokenizer):
     tokenized_input = {'input_ids': encoded.input_ids}
     label = t2t_preprocess_label(instance)
     output = tokenizer(label, padding='max_length', max_length=10).input_ids
-    tokenized_input.update({'labels': output})
+    tokenized_input.update({'labels': output, 'meta': instance['meta']['question_meta']})
     return tokenized_input
 
 
