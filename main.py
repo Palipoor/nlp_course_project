@@ -26,6 +26,16 @@ def main():
 
     args = parser.parse_args()
 
+    class CustomTrainer(Trainer):
+        def compute_loss(self, model, inputs, return_outputs=False):
+            labels = inputs.get("labels")
+            # forward pass
+            outputs = model(**inputs)
+            logits = outputs.get("logits")
+            loss_fct = nn.CrossEntropyLoss(weight=torch.tensor([3.0, 1.0]))
+            loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+            return (loss, outputs) if return_outputs else loss
+
     n_epochs = args.epochs
     batch_size = args.batch_size
     lr = args.lr
@@ -63,6 +73,7 @@ def main():
                 'valid': Dataset.from_list(val_data_points),
                 'test': Dataset.from_list(test_data_points),
             })
+            print(sum([x['labels'] for x in train_data_points]))
             train_args = TrainingArguments(
                 output_dir=run_name,
                 do_train=True,
@@ -77,6 +88,13 @@ def main():
                 num_train_epochs=n_epochs,
                 load_best_model_at_end=True,
                 save_total_limit=2,
+            )
+            trainer = CustomTrainer(
+                model,
+                train_args,
+                train_dataset=dataset["train"],
+                eval_dataset=dataset["valid"],
+                tokenizer=tokenizer,
             )
         else:
             train_data_points = [t2t_preprocess_data(x, tokenizer) for x in train_instances]
@@ -102,13 +120,13 @@ def main():
                 load_best_model_at_end=True,
                 save_total_limit=2,
             )
-        trainer = Trainer(
-            model,
-            train_args,
-            train_dataset=dataset["train"],
-            eval_dataset=dataset["valid"],
-            tokenizer=tokenizer,
-        )
+            trainer = Trainer(
+                model,
+                train_args,
+                train_dataset=dataset["train"],
+                eval_dataset=dataset["valid"],
+                tokenizer=tokenizer,
+            )
 
         trainer.train()
         results_dir = os.path.join(run_name, f'{name}_predictions.csv')
