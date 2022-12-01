@@ -30,7 +30,7 @@ def t2t_preprocess_label(instance):
 
 
 def t2t_preprocess_data(instance, tokenizer):
-    input_text = 'hypothesis: ' + instance['hypothesis'] + ' premise: ' + instance['premise']
+    input_text = 'tmw hypothesis: ' + instance['hypothesis'] + ' premise: ' + instance['premise']
     encoded = tokenizer(input_text, padding='max_length', max_length=256)
     tokenized_input = {'input_ids': encoded.input_ids}
     label = t2t_preprocess_label(instance)
