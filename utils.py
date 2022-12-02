@@ -17,8 +17,8 @@ def create_nli_instance(qa_instance):
 
 def preprocess_label(instance):
     scores = instance['meta']['val_ann']
-    if sum(scores) >= 4:
-        return 1
+    if sum(scores) >= 3:
+        return sum(scores) - 2
     return 0
 
 

@@ -3,6 +3,7 @@ import os
 import json
 
 import torch
+from torch import nn
 from datasets import Dataset, DatasetDict
 from transformers import AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, AutoTokenizer, TrainingArguments, \
     Trainer, Seq2SeqTrainingArguments
@@ -57,7 +58,7 @@ def main():
             test_instances = [create_nli_instance(x) for x in test_data]
 
         if not args.t2t:
-            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=2)
+            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=5)
         else:
             model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
         tokenizer = AutoTokenizer.from_pretrained(args.model)
