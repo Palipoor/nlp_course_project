@@ -77,7 +77,6 @@ def main():
                 do_train=True,
                 do_eval=True,
                 do_predict=True,
-                warmup_ratio = 0.3,
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="epoch",
