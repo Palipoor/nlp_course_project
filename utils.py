@@ -35,12 +35,16 @@ def t2t_preprocess_data(instance, tokenizer):
     tokenized_input = {'input_ids': encoded.input_ids}
     label = t2t_preprocess_label(instance)
     output = tokenizer(label, padding='max_length', max_length=10).input_ids
-    tokenized_input.update({'labels': output, 'meta': instance['meta']['question_meta']})
+    tokenized_input.update({'labels': output, 'meta': instance['meta']})
     return tokenized_input
 
 
 def preprocess_data(instance, tokenizer):
     tokenized_input = tokenizer(instance['premise'], instance['hypothesis'], add_special_tokens=True, padding=True)
     label = preprocess_label(instance)
-    tokenized_input.update({'labels': label, 'meta': instance['meta']['question_meta']})
+    tokenized_input.update({'labels': label, 'meta': instance['meta']})
     return tokenized_input
+
+
+def get_important_parts(data):
+    return data['narrative'], data['question'], data['answer'], str(sum(data['meta']['val_ann']))

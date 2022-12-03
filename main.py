@@ -137,19 +137,22 @@ def main():
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 attn_mask = torch.Tensor(d['attention_mask']).to(torch.int).reshape(1, -1).to('cuda')
                 result = model(input_ids=input_ids, attention_mask=attn_mask)
-                preds.append((d['meta'], torch.argmax(result.logits).item()))
-
+                narrative, question, answer, human_score = get_important_parts(d['meta'])
+                preds.append((narrative, question, answer, human_score, result))
             with open(results_dir, 'w') as out:
+                out.write('narrative,question,answer,human_score_sum,prediction')
                 for p in preds:
-                    out.write(p[0] + ',' + str(p[1]) + '\n')
+                    out.write(','.join(p) + '\n')
         else:
             for d in dataset['test']:
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
-                preds.append((d['meta'], result))
+                narrative, question, answer, human_score = get_important_parts(d['meta'])
+                preds.append((narrative, question, answer, human_score, result))
             with open(results_dir, 'w') as out:
+                out.write('narrative,question,answer,human_score_sum,prediction')
                 for p in preds:
-                    out.write(p[0] + ',' + p[1] + '\n')
+                    out.write(','.join(p) + '\n')
 
 
 if __name__ == '__main__':
