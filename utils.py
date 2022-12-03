@@ -67,4 +67,4 @@ def preprocess_data(instance, tokenizer):
 
 def get_important_parts(data):
     meta = data['meta']
-    return meta['narrative'], meta['question'], meta['answer'], meta['human_score'], data['label']
+    return meta['narrative'], meta['question'], meta['answer'], meta['human_score'], meta['label']
