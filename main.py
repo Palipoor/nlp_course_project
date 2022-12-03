@@ -82,7 +82,7 @@ def main():
                 warmup_steps = 200,
                 save_strategy="epoch",
                 logging_strategy="steps",
-                logging_steps = 200,
+                logging_steps = 100,
                 gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
                 learning_rate=lr,
