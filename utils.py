@@ -47,4 +47,4 @@ def preprocess_data(instance, tokenizer):
 
 
 def get_important_parts(data):
-    return data['narrative'], data['question'], data['answer'], str(sum(data['meta']['val_ann']))
+    return data['narrative'], data['question'], data['answer'], str(sum(data['val_ann']))
