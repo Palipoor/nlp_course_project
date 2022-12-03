@@ -77,6 +77,7 @@ def main():
                 do_train=True,
                 do_eval=True,
                 do_predict=True,
+                warmup_ratio = 0.3,
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="epoch",
@@ -96,13 +97,10 @@ def main():
             )
         else:
 
-            train_data_points = [t2t_preprocess_data(x, tokenizer) for x in train_instances]
-            val_data_points = [t2t_preprocess_data(x, tokenizer) for x in val_instances]
-            test_data_points = [t2t_preprocess_data(x, tokenizer) for x in test_instances]
             dataset = DatasetDict({
-                'train': Dataset.from_list(train_data_points),
-                'valid': Dataset.from_list(val_data_points),
-                'test': Dataset.from_list(test_data_points),
+                'train': Dataset.from_list(train_instances),
+                'valid': Dataset.from_list(val_instances),
+                'test': Dataset.from_list(test_instances),
             })
             train_args = Seq2SeqTrainingArguments(
                 output_dir=run_name,

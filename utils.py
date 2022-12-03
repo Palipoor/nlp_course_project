@@ -39,7 +39,7 @@ def t2t_preprocess_label(instance):
 
 
 def t2t_preprocess_data(instance, tokenizer):
-    input_text = 'tmw question: ' + instance['question'] + ' context: ' + instance['narrative'] + ' answer: ' + \
+    input_text = 'tmw narrative: ' + instance['narrative'] + ' question: ' + instance['question'] + ' answer: ' + \
                  instance['answer']
     encoded = tokenizer(input_text, padding='max_length', max_length=256)
     tokenized_input = {'input_ids': encoded.input_ids}
@@ -49,7 +49,7 @@ def t2t_preprocess_data(instance, tokenizer):
                                                        'question': instance['question'],
                                                        'narrative': instance['narrative'],
                                                        'human_score': instance['avg_score'],
-                                                       'label': instance['label']}})
+                                                       'label': label}})
     return tokenized_input
 
 
