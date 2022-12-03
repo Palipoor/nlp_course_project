@@ -3,6 +3,7 @@ import os
 import json
 
 import torch
+from scipy import stats
 from torch import nn
 from datasets import Dataset, DatasetDict
 from transformers import AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, AutoTokenizer, TrainingArguments, \
@@ -132,6 +133,8 @@ def main():
         trainer.train()
         results_dir = os.path.join(run_name, f'{name}_predictions.csv')
         preds = []
+        references = []
+        pred_numbers = []
         if not args.t2t:
             for d in dataset['test']:
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
@@ -140,10 +143,14 @@ def main():
                 result =  torch.argmax(result.logits).item()
                 narrative, question, answer, human_score = get_important_parts(d['meta'])
                 preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', human_score, str(result)))
+                pred_numbers.append(result)
+                references.append(int(human_score))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_sum,prediction' + '\n')
                 for p in preds:
                     out.write(','.join(p) + '\n')
+            corr = stats.spearmanr(references, pred_numbers)
+            print(corr)
         else:
             for d in dataset['test']:
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
