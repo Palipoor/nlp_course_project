@@ -81,7 +81,7 @@ def main():
                 warmup_ratio = 0.3,
                 lr_scheduler_type = 'constant_with_warmup',
                 save_strategy="epoch",
-                logging_strategy="step",
+                logging_strategy="steps",
                 logging_steps = 50,
                 gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
