@@ -81,13 +81,15 @@ def main():
                 warmup_ratio = 0.3,
                 lr_scheduler_type = 'constant_with_warmup',
                 save_strategy="epoch",
-                logging_strategy="epoch",
+                logging_strategy="step",
+                logging_steps = 50,
                 gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
                 learning_rate=lr,
                 num_train_epochs=n_epochs,
                 load_best_model_at_end=True,
                 save_total_limit=2,
+                report_to='tensorboard'
             )
             trainer = Trainer(
                 model,
