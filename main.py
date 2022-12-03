@@ -78,7 +78,7 @@ def main():
                 do_eval=True,
                 do_predict=True,
                 evaluation_strategy="epoch",
-                warmup_ration = 0.3,
+                warmup_ratio = 0.3,
                 save_strategy="epoch",
                 logging_strategy="epoch",
                 gradient_accumulation_steps=args.acc_step,
