@@ -143,7 +143,7 @@ def main():
                 pred_numbers.append(result)
                 references.append(label)
             with open(results_dir, 'w') as out:
-                out.write('narrative,question,answer,human_score_avg,prediction' + '\n')
+                out.write('narrative,question,answer,human_score_avg,prediction,label' + '\n')
                 for p in preds:
                     out.write(','.join(p) + '\n')
             accuracy = accuracy_score(references, pred_numbers)
@@ -155,7 +155,7 @@ def main():
                 narrative, question, answer, human_score = get_important_parts(d['meta'])
                 preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(result)))
             with open(results_dir, 'w') as out:
-                out.write('narrative,question,answer,human_score_avg,prediction' + '\n')
+                out.write('narrative,question,answer,human_score_avg,prediction,label' + '\n')
                 for p in preds:
                     out.write(','.join(p) + '\n')
 
