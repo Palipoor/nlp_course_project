@@ -139,7 +139,7 @@ def main():
                 result = model(input_ids=input_ids, attention_mask=attn_mask)
                 result = torch.argmax(result.logits).item()
                 narrative, question, answer, human_score, label = get_important_parts(d)
-                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', human_score, label, result))
+                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
                 pred_numbers.append(result)
                 references.append(label)
             with open(results_dir, 'w') as out:
@@ -153,9 +153,9 @@ def main():
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
                 narrative, question, answer, human_score = get_important_parts(d['meta'])
-                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', human_score, str(result)))
+                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(result)))
             with open(results_dir, 'w') as out:
-                out.write('narrative,question,answer,human_score_sum,prediction' + '\n')
+                out.write('narrative,question,answer,human_score_avg,prediction' + '\n')
                 for p in preds:
                     out.write(','.join(p) + '\n')
 
