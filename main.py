@@ -79,6 +79,7 @@ def main():
                 do_predict=True,
                 evaluation_strategy="epoch",
                 warmup_ratio = 0.3,
+                lr_scheduler_type = 'constant_with_warmup',
                 save_strategy="epoch",
                 logging_strategy="epoch",
                 gradient_accumulation_steps=args.acc_step,
