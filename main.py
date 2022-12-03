@@ -139,7 +139,7 @@ def main():
                 result = model(input_ids=input_ids, attention_mask=attn_mask)
                 result =  torch.argmax(result.logits).item()
                 narrative, question, answer, human_score = get_important_parts(d['meta'])
-                preds.append((narrative, question, answer, human_score, str(result)))
+                preds.append((f'"{narrative}"', question, answer, human_score, str(result)))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_sum,prediction')
                 for p in preds:
@@ -149,7 +149,7 @@ def main():
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
                 narrative, question, answer, human_score = get_important_parts(d['meta'])
-                preds.append((narrative, question, answer, human_score, result))
+                preds.append((f'"{narrative}"', question, answer, human_score, str(result)))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_sum,prediction')
                 for p in preds:
