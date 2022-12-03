@@ -78,11 +78,11 @@ def main():
                 do_eval=True,
                 do_predict=True,
                 evaluation_strategy="epoch",
-                lr_scheduler_type = 'constant_with_warmup',
-                warmup_steps = 200,
+                lr_scheduler_type='constant_with_warmup',
+                warmup_steps=300,
                 save_strategy="epoch",
                 logging_strategy="steps",
-                logging_steps = 100,
+                logging_steps=100,
                 gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
                 learning_rate=lr,
@@ -140,7 +140,8 @@ def main():
                 result = model(input_ids=input_ids, attention_mask=attn_mask)
                 result = torch.argmax(result.logits).item()
                 narrative, question, answer, human_score, label = get_important_parts(d)
-                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
+                preds.append(
+                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
                 pred_numbers.append(result)
                 references.append(label)
             with open(results_dir, 'w') as out:
@@ -154,7 +155,8 @@ def main():
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
                 narrative, question, answer, human_score, label = get_important_parts(d)
-                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
+                preds.append(
+                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_avg,prediction,label' + '\n')
                 for p in preds:
