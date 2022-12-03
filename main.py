@@ -79,7 +79,7 @@ def main():
                 do_predict=True,
                 evaluation_strategy="epoch",
                 lr_scheduler_type = 'linear',
-                warmup_ratio = 0.5,
+                warmup_ratio = 0.3,
                 save_strategy="epoch",
                 logging_strategy="steps",
                 logging_steps = 200,
@@ -153,8 +153,8 @@ def main():
             for d in dataset['test']:
                 input_ids = torch.Tensor(d['input_ids']).to(torch.int).reshape(1, -1).to('cuda')
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
-                narrative, question, answer, human_score = get_important_parts(d['meta'])
-                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(result)))
+                narrative, question, answer, human_score, label = get_important_parts(d)
+                preds.append((f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_avg,prediction,label' + '\n')
                 for p in preds:
