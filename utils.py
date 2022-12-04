@@ -39,7 +39,7 @@ def t2t_preprocess_label(instance):
 
 
 def t2t_preprocess_data(instance, tokenizer):
-    input_text = 'narrative: ' + instance['narrative'] + ' question: ' + instance['question'] + ' answer: ' + \
+    input_text = 'answer verification narrative: ' + instance['narrative'] + '\nquestion: ' + instance['question'] + '\nanswer: ' + \
                  instance['answer']
     encoded = tokenizer(input_text, padding='max_length', max_length=128)
     tokenized_input = {'input_ids': encoded.input_ids}
@@ -68,7 +68,7 @@ def preprocess_data(instance, tokenizer, hyp_premise=False):
                                     add_special_tokens=True, padding=True)
     else:
         tokenized_input = tokenizer(instance['narrative'], instance['question'], instance['answer'],
-                                    add_special_tokens=True, padding=True)
+                                    add_special_tokens=True, padding=True, max_length = 128)
     label = instance['label']
     tokenized_input.update({'labels': label, 'meta': {'answer': instance['answer'],
                                                       'question': instance['question'],
