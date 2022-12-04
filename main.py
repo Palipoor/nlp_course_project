@@ -16,6 +16,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-t2t', action='store_true')
+    parser.add_argument('-hp', action='store_true')
     parser.add_argument('--num_labels', default=2, type=int)
     parser.add_argument('--mode', type=str, help='train or test mode', required=True, choices=['train', 'test'])
     parser.add_argument('--expt_dir', type=str, help='root directory to save model & summaries')
@@ -32,6 +33,7 @@ def main():
     n_epochs = args.epochs
     batch_size = args.batch_size
     lr = args.lr
+    hp = args.hp
     data_dir = args.data_dir
     train_file = os.path.join(data_dir, 'train.json')
     val_file = os.path.join(data_dir, 'val.json')
@@ -44,19 +46,19 @@ def main():
             if args.t2t:
                 train_instances = [t2t_preprocess_data(x, tokenizer) for x in train_data]
             else:
-                train_instances = [preprocess_data(x, tokenizer) for x in train_data]
+                train_instances = [preprocess_data(x, tokenizer, hp) for x in train_data]
         with open(val_file, 'r') as f:
             val_data = json.loads(f.read())
             if args.t2t:
                 val_instances = [t2t_preprocess_data(x, tokenizer) for x in val_data]
             else:
-                val_instances = [preprocess_data(x, tokenizer) for x in val_data]
+                val_instances = [preprocess_data(x, tokenizer, hp) for x in val_data]
         with open(test_file, 'r') as f:
             test_data = json.loads(f.read())
             if args.t2t:
                 test_instances = [t2t_preprocess_data(x, tokenizer) for x in test_data]
             else:
-                test_instances = [preprocess_data(x, tokenizer) for x in test_data]
+                test_instances = [preprocess_data(x, tokenizer, hp) for x in test_data]
 
         if not args.t2t:
             model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=args.num_labels)
@@ -77,6 +79,7 @@ def main():
                 do_train=True,
                 do_eval=True,
                 do_predict=True,
+                lr_scheduler_type='constant',
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="steps",

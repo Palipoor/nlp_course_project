@@ -53,9 +53,22 @@ def t2t_preprocess_data(instance, tokenizer):
     return tokenized_input
 
 
-def preprocess_data(instance, tokenizer):
-    tokenized_input = tokenizer(instance['narrative'], instance['question'], instance['answer'],
-                                add_special_tokens=True, padding=True)
+def preprocess_data(instance, tokenizer, hyp_premise=False):
+    if hyp_premise:
+        context = instance['narrative']
+        effect = instance['original_sentence']
+        cause = instance['answer']
+
+        premise = context
+        if 'because' in cause:
+            hypothesis = cause
+        else:
+            hypothesis = effect[:-1] + ' because ' + cause
+        tokenized_input = tokenizer(premise, hypothesis,
+                                    add_special_tokens=True, padding=True)
+    else:
+        tokenized_input = tokenizer(instance['narrative'], instance['question'], instance['answer'],
+                                    add_special_tokens=True, padding=True)
     label = instance['label']
     tokenized_input.update({'labels': label, 'meta': {'answer': instance['answer'],
                                                       'question': instance['question'],
