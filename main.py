@@ -79,7 +79,7 @@ def main():
                 do_train=True,
                 do_eval=True,
                 do_predict=True,
-                lr_scheduler_type='constant',
+                warmup_ratio = 0.1,
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="steps",
