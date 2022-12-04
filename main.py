@@ -83,7 +83,7 @@ def main():
                 evaluation_strategy="epoch",
                 save_strategy="epoch",
                 logging_strategy="steps",
-                logging_steps=100,
+                logging_steps=10,
                 gradient_accumulation_steps=args.acc_step,
                 per_device_train_batch_size=batch_size,
                 learning_rate=lr,
