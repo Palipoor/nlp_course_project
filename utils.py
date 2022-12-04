@@ -33,18 +33,18 @@ import re
 def t2t_preprocess_label(instance):
     score = instance['label']
     if score == 1:
-        return 'valid'
+        return 'valid answer'
     else:
-        return 'invalid'
+        return 'invalid answer'
 
 
 def t2t_preprocess_data(instance, tokenizer):
-    input_text = 'tmw narrative: ' + instance['narrative'] + ' question: ' + instance['question'] + ' answer: ' + \
+    input_text = 'narrative: ' + instance['narrative'] + ' question: ' + instance['question'] + ' answer: ' + \
                  instance['answer']
     encoded = tokenizer(input_text, padding='max_length', max_length=256)
     tokenized_input = {'input_ids': encoded.input_ids}
     label = t2t_preprocess_label(instance)
-    output = tokenizer(label, padding='max_length', max_length=5).input_ids
+    output = tokenizer(label, padding='max_length', max_length=10).input_ids
     tokenized_input.update({'labels': output, 'meta': {'answer': instance['answer'],
                                                        'question': instance['question'],
                                                        'narrative': instance['narrative'],

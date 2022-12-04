@@ -141,7 +141,7 @@ def main():
                 result = torch.argmax(result.logits).item()
                 narrative, question, answer, human_score, label = get_important_parts(d)
                 preds.append(
-                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
+                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(result), str(label)))
                 pred_numbers.append(result)
                 references.append(label)
             with open(results_dir, 'w') as out:
@@ -156,7 +156,7 @@ def main():
                 result = tokenizer.decode(model.generate(input_ids=input_ids)[0])
                 narrative, question, answer, human_score, label = get_important_parts(d)
                 preds.append(
-                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(label), str(result)))
+                    (f'"{narrative}"', f'"{question}"', f'"{answer}"', str(human_score), str(result), str(label)))
             with open(results_dir, 'w') as out:
                 out.write('narrative,question,answer,human_score_avg,prediction,label' + '\n')
                 for p in preds:
