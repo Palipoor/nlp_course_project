@@ -1,34 +1,3 @@
-import argparse
-import sys
-import pickle
-import pandas as pd
-import json
-import re
-
-
-# def create_nli_instance(qa_instance):
-#     context = qa_instance['narrative']
-#     effect = qa_instance['original_sentence_for_question']
-#     cause = qa_instance['answer']
-#
-#     premise = context
-#     if 'because' in cause:
-#         hypothesis = cause
-#     else:
-#         hypothesis = effect[:-1] + ' because ' + cause
-#     return {
-#         'premise': premise,
-#         'hypothesis': hypothesis,
-#         'meta': qa_instance
-#     }
-
-
-# def preprocess_label(instance):
-#     scores = instance['meta']['val_ann']
-#     if sum(scores) >= 3:
-#         return sum(scores) - 2
-#     return 0
-
 def t2t_hp_preprocess_label(instance):
     score = instance['label']
     if score == 1:
@@ -91,7 +60,7 @@ def preprocess_data(instance, tokenizer, hyp_premise=False):
                                     add_special_tokens=True, padding=True)
     else:
         tokenized_input = tokenizer(instance['narrative'], instance['question'], instance['answer'],
-                                    add_special_tokens=True, padding=True, max_length=128)
+                                    add_special_tokens=True, padding=True)
     label = instance['label']
     tokenized_input.update({'labels': label, 'meta': {'answer': instance['answer'],
                                                       'question': instance['question'],
