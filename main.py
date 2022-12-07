@@ -44,19 +44,19 @@ def main():
         with open(train_file, 'r') as f:
             train_data = json.loads(f.read())
             if args.t2t:
-                train_instances = [t2t_preprocess_data(x, tokenizer) for x in train_data]
+                train_instances = [t2t_preprocess_data(x, tokenizer, hp) for x in train_data]
             else:
                 train_instances = [preprocess_data(x, tokenizer, hp) for x in train_data]
         with open(val_file, 'r') as f:
             val_data = json.loads(f.read())
             if args.t2t:
-                val_instances = [t2t_preprocess_data(x, tokenizer) for x in val_data]
+                val_instances = [t2t_preprocess_data(x, tokenizer, hp) for x in val_data]
             else:
                 val_instances = [preprocess_data(x, tokenizer, hp) for x in val_data]
         with open(test_file, 'r') as f:
             test_data = json.loads(f.read())
             if args.t2t:
-                test_instances = [t2t_preprocess_data(x, tokenizer) for x in test_data]
+                test_instances = [t2t_preprocess_data(x, tokenizer, hp) for x in test_data]
             else:
                 test_instances = [preprocess_data(x, tokenizer, hp) for x in test_data]
 

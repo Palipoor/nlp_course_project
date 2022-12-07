@@ -29,7 +29,14 @@ import re
 #         return sum(scores) - 2
 #     return 0
 
-#
+def t2t_hp_preprocess_label(instance):
+    score = instance['label']
+    if score == 1:
+        return 'entailment'
+    else:
+        return 'contradiction'
+
+
 def t2t_preprocess_label(instance):
     score = instance['label']
     if score == 1:
@@ -38,12 +45,28 @@ def t2t_preprocess_label(instance):
         return 'invalid answer'
 
 
-def t2t_preprocess_data(instance, tokenizer):
-    input_text = 'answer verification narrative: ' + instance['narrative'] + '\nquestion: ' + instance['question'] + '\nanswer: ' + \
-                 instance['answer']
-    encoded = tokenizer(input_text, padding='max_length', max_length=128)
-    tokenized_input = {'input_ids': encoded.input_ids}
-    label = t2t_preprocess_label(instance)
+def t2t_preprocess_data(instance, tokenizer, hyp_premise):
+    if hyp_premise:
+        context = instance['narrative']
+        effect = instance['original_sentence']
+        cause = instance['answer']
+
+        premise = context
+        if 'because' in cause:
+            hypothesis = cause
+        else:
+            hypothesis = effect[:-1] + ' because ' + cause
+        input_text = 'hypothesis: ' + hypothesis + '\n' + 'premise: ' + premise
+        encoded = tokenizer(input_text, padding='max_length', max_length=128)
+        tokenized_input = {'input_ids': encoded.input_ids}
+        label = t2t_hp_preprocess_label(instance)
+    else:
+        input_text = 'answer verification narrative: ' + instance['narrative'] + '\nquestion: ' + instance[
+            'question'] + '\nanswer: ' + \
+                     instance['answer']
+        encoded = tokenizer(input_text, padding='max_length', max_length=128)
+        tokenized_input = {'input_ids': encoded.input_ids}
+        label = t2t_preprocess_label(instance)
     output = tokenizer(label, padding='max_length', max_length=10).input_ids
     tokenized_input.update({'labels': output, 'meta': {'answer': instance['answer'],
                                                        'question': instance['question'],
@@ -68,7 +91,7 @@ def preprocess_data(instance, tokenizer, hyp_premise=False):
                                     add_special_tokens=True, padding=True)
     else:
         tokenized_input = tokenizer(instance['narrative'], instance['question'], instance['answer'],
-                                    add_special_tokens=True, padding=True, max_length = 128)
+                                    add_special_tokens=True, padding=True, max_length=128)
     label = instance['label']
     tokenized_input.update({'labels': label, 'meta': {'answer': instance['answer'],
                                                       'question': instance['question'],
