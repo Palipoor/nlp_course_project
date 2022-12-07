@@ -17,7 +17,6 @@ def main():
 
     parser.add_argument('-t2t', action='store_true')
     parser.add_argument('-hp', action='store_true')
-    parser.add_argument('--num_labels', default=2, type=int)
     parser.add_argument('--mode', type=str, help='train or test mode', required=True, choices=['train', 'test'])
     parser.add_argument('--expt_dir', type=str, help='root directory to save model & summaries')
     parser.add_argument('--expt_name', type=str, help='expt_dir/expt_name: organize experiments')
@@ -61,7 +60,7 @@ def main():
                 test_instances = [preprocess_data(x, tokenizer, hp) for x in test_data]
 
         if not args.t2t:
-            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=args.num_labels)
+            model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=2)
         else:
             model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
         name = f"{args.expt_name}_bs_{batch_size}_lr_{lr}_epoch_{n_epochs}"
